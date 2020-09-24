@@ -2,12 +2,12 @@ package ru.netology
 
 data class Comment(
     val commentId: Int,
-    val commentOwnerId: Int,
+//    val commentOwnerId: Int,
     val noteId: Int,
-    val noteOwnerId: Int,
-    val date: Long,
+//    val noteOwnerId: Int,
+    val date: Long = System.currentTimeMillis(),
     val message: String,
-    var isDelete: Boolean = false
+    val isDelete: Boolean = false
 )
 
 //id — идентификатор комментария;

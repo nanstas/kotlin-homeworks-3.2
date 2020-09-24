@@ -1,23 +1,23 @@
 package ru.netology
 
 class Notes {
-    private val notes = mutableMapOf<Note, MutableList<Comment>>()
+    private val notes = mutableListOf<Note>()
     private var noteId = 0
     private var commentId = 0
 
     fun add(title: String, text: String): Int {
         noteId += 1
         val note = Note(title = title, text = text, noteId = noteId)
-        notes.put(note, mutableListOf())
+        notes.add(note)
         return note.noteId
     }
 
     fun createComment(noteId: Int, message: String): Int {
-        for (note in notes.keys) {
+        for (note in notes) {
             if (note.noteId == noteId) {
                 commentId += 1
                 val comment = Comment(commentId = commentId, noteId = noteId, message = message)
-                notes.get(note)?.add(comment)
+                note.comments.add(comment)
                 return comment.noteId
             }
         }
@@ -25,9 +25,11 @@ class Notes {
     }
 
     fun delete(noteId: Int): Boolean {
-        for (note in notes.keys) {
+        for (note in notes) {
             if (note.noteId == noteId) {
-                note.isDelete = true
+                val delNote = note.copy(isDelete = true)
+                notes.remove(note)
+                notes.add(delNote)
                 return true
             }
         }
@@ -36,9 +38,11 @@ class Notes {
 
     fun deleteComment(commentId: Int): Boolean {
         for (note in notes) {
-            for (comment in note.value) {
+            for (comment in note.comments) {
                 if (comment.commentId == commentId) {
-                    comment.isDelete = true
+                    val delComment = comment.copy(isDelete = true)
+                    note.comments.remove(comment)
+                    note.comments.add(delComment)
                     return true
                 }
             }
@@ -47,16 +51,11 @@ class Notes {
     }
 
     fun edit(noteId: Int, title: String, text: String): Boolean {
-        for (note in notes.keys) {
+        for (note in notes) {
             if (note.noteId == noteId) {
                 val editNote = note.copy(title = title, text = text)
-                val comments = notes.get(note)
                 notes.remove(note)
-                if (comments != null) {
-                    notes.put(editNote, comments)
-                } else {
-                    notes.put(editNote, mutableListOf())
-                }
+                notes.add(editNote)
                 return true
             }
         }
@@ -65,11 +64,11 @@ class Notes {
 
     fun editComment(commentId: Int, message: String): Boolean {
         for (note in notes) {
-            for (comment in note.value) {
+            for (comment in note.comments) {
                 if (comment.commentId == commentId) {
                     val editComment = comment.copy(message = message)
-                    note.value.remove(comment)
-                    note.value.add(editComment)
+                    note.comments.remove(comment)
+                    note.comments.add(editComment)
                     return true
                 }
             }
@@ -77,29 +76,64 @@ class Notes {
         return false
     }
 
-//    fun get(noteIds: List<Int>?, userId: Int, count: Int = 20, sort: Int = 0) {
-//
-//    }
-//
-//    fun getById(noteId: Int, needWiki: Int = 0): Note {
-//
-//    }
-//
-//    fun getComments(noteId: Int, sort: Int = 0, count: Int = 20): List<Comment> {
-//
-//    }
-//
-//    fun restoreComment(commentId: Int): Boolean {
-//
-//    }
+    fun get(noteIds: Set<Int>, sort: Int = 0): MutableList<Note> {
+        val getNotes = mutableListOf<Note>()
+        for (noteId in noteIds) {
+            for (note in notes) {
+                if (note.noteId == noteId) {
+                    getNotes.add(note)
+                }
+            }
+        }
+        getNotes.sortBy { it.date }
+        getNotes.reverse()
+        if (sort == 1) getNotes.reverse()
 
-    val time: Long = System.currentTimeMillis()
+        return getNotes
+    }
+
+    fun getById(noteId: Int): Note {
+        for (note in notes) {
+            if (note.noteId == noteId) {
+                return note
+            }
+        }
+        return throw NoteNotFoundException("no note with id $noteId")
+    }
+
+    fun getComments(noteId: Int, sort: Int = 0): MutableList<Comment> {
+        for (note in notes) {
+                if (note.noteId == noteId) {
+                    val getComments = note.comments
+                    getComments.sortBy { it.date }
+                    getComments.reverse()
+                    if (sort == 1) getComments.reverse()
+                    return getComments
+                }
+            }
+        return throw NoteNotFoundException("no note with id $noteId")
+    }
+
+
+    fun restoreComment(commentId: Int): Boolean {
+        for (note in notes) {
+            for (comment in note.comments) {
+                if (comment.commentId == commentId) {
+                    val restoreComment = comment.copy(isDelete = false)
+                    note.comments.remove(comment)
+                    note.comments.add(restoreComment)
+                    return true
+                }
+            }
+        }
+        return false
+    }
 
     fun printNotes() {
         for (note in notes) {
-            println(note.key)
-            for (comment in note.value) {
-                println(comment)
+            println("Note ID: ${note.noteId}, data: ${note.date}, title: ${note.title}, text: ${note.text}, is del: ${note.isDelete}")
+            for (comment in note.comments) {
+                println("---> $comment")
             }
             println()
         }

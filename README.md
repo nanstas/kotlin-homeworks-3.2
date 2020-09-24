@@ -6,3 +6,5 @@
 * privacy_comment
 * reply_to
 * offset
+* needWiki
+* count
