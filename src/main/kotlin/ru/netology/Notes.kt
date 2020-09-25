@@ -59,7 +59,7 @@ class Notes {
                 return true
             }
         }
-        return true
+        return false
     }
 
     fun editComment(commentId: Int, message: String): Boolean {
@@ -98,7 +98,7 @@ class Notes {
                 return note
             }
         }
-        return throw NoteNotFoundException("no note with id $noteId")
+        throw NoteNotFoundException("no note with id $noteId")
     }
 
     fun getComments(noteId: Int, sort: Int = 0): MutableList<Comment> {
@@ -111,9 +111,8 @@ class Notes {
                     return getComments
                 }
             }
-        return throw NoteNotFoundException("no note with id $noteId")
+        throw NoteNotFoundException("no note with id $noteId")
     }
-
 
     fun restoreComment(commentId: Int): Boolean {
         for (note in notes) {
@@ -127,15 +126,5 @@ class Notes {
             }
         }
         return false
-    }
-
-    fun printNotes() {
-        for (note in notes) {
-            println("Note ID: ${note.noteId}, data: ${note.date}, title: ${note.title}, text: ${note.text}, is del: ${note.isDelete}")
-            for (comment in note.comments) {
-                println("---> $comment")
-            }
-            println()
-        }
     }
 }

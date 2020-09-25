@@ -8,3 +8,5 @@
 * offset
 * needWiki
 * count
+
+Удаление реализовано через присвоение параметру isDelete объектов Note и Comment значения true
